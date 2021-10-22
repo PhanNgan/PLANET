@@ -1,0 +1,85 @@
+
+
+filter_otus_from_otu_table.py -i otu_table.biom -o only_roots_otu -e only_specific_OTU_root.txt
+
+
+qiime feature-table filter-samples \
+ --i-table Cambodia_2018_16S_table-FINAL-unrarefied.qza \
+ --m-metadata-file Cambodia_2018_metadata_all.txt \
+ --p-exclude-ids Roots \
+ --o-filtered-table Cambodia_2018_16S_table-FINAL-unrarefied_Rhizo.qza
+ 
+ 
+ 
+ qiime feature-table filter-seqs \
+  --i-data Cambodia_2018_16S-rep-seqs.qza \
+  --i-table Cambodia_2018_16S_table-FINAL-unrarefied_Rhizo.qza \
+  --o-filtered-data Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_Rhizo.qza
+  
+  qiime feature-table filter-seqs \
+  --i-data Cambodia_2018_16S-rep-seqs.qza \
+  --i-table Cambodia_2018_16S_table-FINAL-unrarefied_Roots.qza \
+  --o-filtered-data Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_Roots.qza
+
+
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_Roots.qza \
+  --o-alignment Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_Roots-aligned.qza \
+  --o-masked-alignment Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_Roots-masked-alignment.qza \
+  --o-tree Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_Roots-unrooted.qza \
+  --o-rooted-tree Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_Roots-rooted.qza
+
+
+biom convert -i otu_table.txt -o new_otu_table.biom --to-hdf5 --table-type="OTU table" --process-obs-metadata taxonomy
+
+qiime tools import \
+  --input-path Root_Rhizosphere_differentiate_enrichment.fasta \
+  --output-path 1Root_Rhizosphere_differentiate_enrichment.fasta.qza \
+  --type 'FeatureData[Sequence]'
+
+
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences 1Root_Rhizosphere_differentiate_enrichment.fasta.qza \
+  --o-alignment Root_Rhizosphere_differentiate_enrichment-aligned.qza \
+  --o-masked-alignment Root_Rhizosphere_differentiate_enrichment-masked-alignment.qza \
+  --o-tree Root_Rhizosphere_differentiate_enrichment-unrooted.qza \
+  --o-rooted-tree Root_Rhizosphere_differentiate_enrichment-rooted.qza
+
+
+qiime tools import \ 
+--input-path feature-table-v210.biom \
+ --type ‘FeatureTable[Frequency]’ \ 
+--input-format BIOMV210Format \ 
+--output-path feature-table-2.qza
+
+ qiime feature-table filter-samples  --i-table Cambodia_2018_16S_table-FINAL-unrarefied.qza  --m-metadata-file only_specific_rhizho_OTU  --o-filtered-table Cambodia_2018_16S_table-FINAL-unrarefied_specific_rhizo_1.qza
+
+
+qiime feature-table filter-samples \
+ --i-table Cambodia_2018_16S_table-FINAL-unrarefied.qza \
+ --m-metadata-file Cambodia_2018_metadata_all.txt \
+ --p-no-exclude-ids only_root_OTU \
+ --o-filtered-table Cambodia_2018_16S_table-FINAL-unrarefied_specific_root.qza
+
+qiime feature-table filter-seqs \
+  --i-data Cambodia_2018_16S-rep-seqs.qza \
+  --i-table Cambodia_2018_16S_table-FINAL-unrarefied_specific_rhizo.qza \
+  --o-filtered-data Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_specific_rhizo.qza
+
+
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_specific_rhizo.qza \
+  --o-alignment Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_v-aligned.qza \
+  --o-masked-alignment Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_specific_root-masked-alignment.qza \
+  --o-tree Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_specific_root-unrooted.qza \
+  --o-rooted-tree Cambodia_2018_16S-rep-seqs-FINAL-unrarefied_specific_root-rooted.qza
+
+
+
+
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences Mg_endo_16s-rep-seqs-3-filterunwanted.qza \
+  --o-alignment Mg_endo_16s-rep-seqs-3_filter-aligned.qza \
+  --o-masked-alignment Mg_endo_16s-rep-seqs-3_filter-masked-alignment.qza \
+  --o-tree Mg_endo_16s-rep-seqs-3_filter-unrooted.qza \
+  --o-rooted-tree Mg_endo_16s-rep-seqs-3_filter-rooted.qza
